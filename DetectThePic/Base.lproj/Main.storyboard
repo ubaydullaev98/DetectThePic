@@ -31,8 +31,16 @@
                     </view>
                     <navigationItem key="navigationItem" title="Detect The Pic" id="D4l-Ge-iqX">
                         <rightBarButtonItems>
-                            <barButtonItem systemItem="camera" id="mdH-KK-6Fc"/>
-                            <barButtonItem systemItem="organize" id="eRe-vp-TDw"/>
+                            <barButtonItem systemItem="camera" id="mdH-KK-6Fc">
+                                <connections>
+                                    <action selector="cameraTapped:" destination="BYZ-38-t0r" id="g28-eU-cgz"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem systemItem="organize" id="eRe-vp-TDw">
+                                <connections>
+                                    <action selector="folderTapped:" destination="BYZ-38-t0r" id="Z6w-pS-HG1"/>
+                                </connections>
+                            </barButtonItem>
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>

@@ -10,12 +10,16 @@ import UIKit
 import CoreML
 import Vision
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource,  UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    var pickerController = UIImagePickerController()
     
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var tableView: UITableView!
     
     var resnetModel = Resnet50()
+    
+    var results = [VNClassificationObservation]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,16 +28,27 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tableView.delegate = self
         
         processPicture(image: imageView.image!)
+        
+        pickerController.delegate = self
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let image = info[.originalImage] as? UIImage{
+            imageView.image = image
+            processPicture(image: image)
+        }
+        pickerController.dismiss(animated: true, completion: nil)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return results.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = UITableViewCell()
-        
+        let result = results[indexPath.row]
+        cell.textLabel?.text = "\(result.identifier): \(Int(result.confidence * 100))%"
         return cell
     }
     
@@ -41,7 +56,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if let model = try? VNCoreMLModel(for: resnetModel.model){
             let request = VNCoreMLRequest(model: model) { (request, error) in
                 if let results = request.results as? [VNClassificationObservation]{
-                    print(results)
+                    self.results = Array(results.prefix(20))
+                    self.tableView.reloadData()
                 }
             }
             if let imageData = image.jpegData(compressionQuality: 1.0){
@@ -52,7 +68,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     
+    @IBAction func folderTapped(_ sender: UIBarButtonItem) {
+        pickerController.sourceType = .photoLibrary
+        present(pickerController, animated: true, completion: nil)
+    }
     
-
+    @IBAction func cameraTapped(_ sender: UIBarButtonItem) {
+        pickerController.sourceType = .camera
+        present(pickerController, animated: true, completion: nil)
+    }
+    
 }
 
